@@ -11,6 +11,7 @@ langchain = "^0.0.323"
 openai = "*"
 jupyter = "^1.0.0"
 python-dotenv = "^1.0.0"
+pydantic = "1.*"
 magic-tree = { git = "https://github.com/jonmatthis/magic_tree.git" }
 
 
