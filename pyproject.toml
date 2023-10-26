@@ -8,8 +8,10 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 langchain = "^0.0.323"
+openai = "*"
 jupyter = "^1.0.0"
 python-dotenv = "^1.0.0"
+magic-tree = { git = "https://github.com/jonmatthis/magic_tree.git" }
 
 
 [build-system]
