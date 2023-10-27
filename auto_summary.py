@@ -12,25 +12,29 @@ from magic_tree.controller.builders.directory_tree_builder import DirectoryTreeB
 load_dotenv()
 
 SUMMARY_PROMPT = """
-Summarize the following text, which is a section of an NIH R01. 
-
-The text is writtne in `.tex`. In your summary, you should roughly match the 
-structure defined in the `tex` file using markdown heading levels to match tex 
-`section` definitions (i.e. # - `section`, ## -`subsection` etc) 
- 
- So your summary should look something like this:
- FILE_PATH - [e.g. /document/specific_aims/main_specific_aims.tex]
- STATUS - [an estimate of how close to "done" this is, in a few words] 
- ## [section name]
-    ### [subsection name]
-        #### [subsubsection name]
- ## [another section name]
- ## Notes:
-    - Strengths
-        - [list of strengths]
-    - Weaknesses
-        - [list of weaknesses]
+    You are a bot assistant for an open source software project. 
+    We are working on giving the documentation for this project a complete overhaul.
+    This will be an ongoing, iterative process.
     
+    We are assessing each document as it currently exists to be reworked so that it fits into the Diataxis Documentation framework.
+    The Diataxis Documentation framework can be summarized as follows:
+        * The framework provides a systematic approach to create, organize and maintain technical documentation.
+        * The goal is pragmatic improvement.
+        * The framework divides documentation into 4 types based on 2 axes:
+            1 - Theory vs Practice
+            2 - Acquisition vs Application
+        * The 4 types of Documentation:
+            1 - Tutorials - Learning-oriented guides that provide lessons to teach users basic skills. Help users get started.
+            2 - How-To Guides - Task-oriented guides that provide steps to accomplish specific goals. Help users solve problems.
+            3 - Reference - Information-oriented technical descriptions of the product. Help users find factual information.
+            4 - Explanation - Understanding-oriented discussion to provide context and illuminate concepts. Help users gain deeper knowledge.
+        * Each type serves a distinct user need at different points in their journey using the product.
+        * Keeping the types clearly separated improves quality by ensuring docs fit user needs.
+        * Start small, assess and improve one part at a time to steadily enhance overall documentation.
+        
+    Your job as a bot assistant is to:
+        * At the top of each document, add text identifying it so that it fits into the Diataxis framework
+        * Summarize each document so that it considers the Diataxis Documentation framework.
  
  DOCUMENT DRAFT TEXT: 
  
@@ -48,19 +52,32 @@ def create_component_summary_chain():
 
 
 GLOBAL_SUMMARY_PROMPT = """
-The following text is an early, incomplete draft of an NIH R01 Proposal
-
-Summarize the main points of the proposal, including the following sections:
-# Specific Aims
-# Research Strategy
-## Significance
-## Innovation
-## Approach
-### Aim 1
-### Aim 2
-
-Then list the Strengths and Weaknesses of the proposal
-
+    You are a bot assistant for an open source software project. 
+    We are working on giving the documentation for this project a complete overhaul.
+    This will be an ongoing, iterative process.
+    
+    We are assessing each document as it currently exists to be reworked so that it fits into the Diataxis Documentation framework.
+    The Diataxis Documentation framework can be summarized as follows:
+        * The framework provides a systematic approach to create, organize and maintain technical documentation.
+        * The goal is pragmatic improvement.
+        * The framework divides documentation into 4 types based on 2 axes:
+            1 - Theory vs Practice
+            2 - Acquisition vs Application
+        * The 4 types of Documentation:
+            1 - Tutorials - Learning-oriented guides that provide lessons to teach users basic skills. Help users get started.
+            2 - How-To Guides - Task-oriented guides that provide steps to accomplish specific goals. Help users solve problems.
+            3 - Reference - Information-oriented technical descriptions of the product. Help users find factual information.
+            4 - Explanation - Understanding-oriented discussion to provide context and illuminate concepts. Help users gain deeper knowledge.
+        * Each type serves a distinct user need at different points in their journey using the product.
+        * Keeping the types clearly separated improves quality by ensuring docs fit user needs.
+        * Start small, assess and improve one part at a time to steadily enhance overall documentation.
+        
+    Approach this as a second pass. Previously, we summarized each document individually in the repository. 
+    For this pass, your job as a bot assistant is to:
+        * I need you to combine the summaries of each file into a global report of the current state of the documentation. This should include:
+            1. Identification of gaps that would complete an approach using the Diataxis Documentation framework.
+            2. A prioritized list of what exists and where the gaps should most be addressed. 
+             
  CURRENT PROPOSAL TEXT: 
  
 {text}
@@ -134,6 +151,6 @@ async def auto_summary(document_root_path: Union[Path, str],
 
 
 if __name__ == "__main__":
-    document_root_path_in = Path("./diataxis-documentation-framework-repo")
-    # document_root_path_in = Path("/Users/jon/github_repos/jonmatthis/pauljon/scraped_docs_data/documentation/docs")
-    asyncio.run(auto_summary(document_root_path=document_root_path_in, extension=".rst"))
+    # document_root_path_in = Path("./diataxis-documentation-framework-repo")
+    document_root_path_in = Path("./scraped_docs_data/documentation/docs")
+    asyncio.run(auto_summary(document_root_path=document_root_path_in, extension=".md"))
