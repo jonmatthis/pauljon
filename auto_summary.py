@@ -104,6 +104,7 @@ async def auto_summary(document_root_path: Union[Path, str],
     global_summary_chain = create_global_summary_chain()
     input_texts = []
     all_text = []
+    paths =[]
     subfolders_to_skip = ["_static", "_templates","images"]
     for path in Path(document_root_path).rglob(f"*{extension}"):
         if any(subfolder in str(path).lower() for subfolder in subfolders_to_skip):
@@ -113,7 +114,7 @@ async def auto_summary(document_root_path: Union[Path, str],
                 file_content = path.read_text()
                 print(f"=============================================================\n"
                       f"Processing {path}")
-
+                paths.append(path)
                 text_to_analyze = (f"{str(path)}\n"
                                    f"{file_content}")
                 all_text.append(text_to_analyze)
@@ -124,8 +125,9 @@ async def auto_summary(document_root_path: Union[Path, str],
 
 
     all_summaries = await component_summary_chain.abatch(input_texts)
-    for summary in all_summaries:
+    for path, summary in zip(paths, all_summaries):
         file_summary = (f"+++++++++++++++++++++++++++++++++++\n\n"
+                        f"INDIVIDUAL FILE PATH - {path}\n\n"
                         f"{summary.content}\n\n"
                         f"-----------------------------------\n\n")
         print(file_summary)
@@ -137,13 +139,15 @@ async def auto_summary(document_root_path: Union[Path, str],
 
     output_text += (f"=============================================================\n\n"
                     f"=============================================================\n\n"
-                    f"___ \n > Global Summary \n {global_summary}\n\n")
+                    f"\n\n GLOBAL SUMMARY OF SUMMARIES \n \n"
+                    f"=============================================================\n\n"
+                    f"{global_summary}\n\n")
 
-    document_tree = DirectoryTreeBuilder.from_path(path=document_root_path)
-
-    document_tree_string = f"```\n\n{document_tree.print()}\n\n```\n\n"
-    print(document_tree_string)
-    output_text += document_tree_string
+    # document_tree = DirectoryTreeBuilder.from_path(path=document_root_path)
+    #
+    # document_tree_string = f"```\n\n{document_tree.print()}\n\n```\n\n"
+    # print(document_tree_string)
+    # output_text += document_tree_string
 
 
     with open("document_summary.md", "w", encoding="utf-8") as file:
