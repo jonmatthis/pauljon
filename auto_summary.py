@@ -87,7 +87,7 @@ GLOBAL_SUMMARY_PROMPT = """
 def create_global_summary_chain():
     prompt = ChatPromptTemplate.from_template(GLOBAL_SUMMARY_PROMPT)
 
-    model = ChatAnthropic(temperature=0)
+    model = ChatAnthropic(temperature=0, max_tokens=4000)
     chain = prompt | model
     return chain
 
