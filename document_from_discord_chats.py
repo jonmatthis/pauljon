@@ -96,8 +96,10 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
     component_summary_chain = create_component_summary_chain()
     global_summary_chain = create_global_summary_chain()
     inputs = []
+    all_texts = []
     for chat in chats:
         try:
+            all_texts.append(chat["as_text"])
             inputs.append({"text": chat["as_text"]})
         except KeyError:
             print(f"WARNING: Could not find `as_text` key in chat: {chat}")
@@ -113,7 +115,7 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
 
     print(output_text)
 
-    global_summary = global_summary_chain.invoke({"text": "\n".join(input_texts)}).content
+    global_summary = global_summary_chain.invoke({"text": "\n".join(all_texts)}).content
 
     output_text += (f"=============================================================\n\n"
                     f"=============================================================\n\n"
@@ -122,7 +124,7 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
                     f"{global_summary}\n\n")
 
     document_file_name = f"document_summary.md"
-    with open("document_file_name", "w", encoding="utf-8") as file:
+    with open(document_file_name, "w", encoding="utf-8") as file:
         file.write(output_text)
 
 
