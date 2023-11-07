@@ -31,7 +31,7 @@ def create_topic_extraction_chain():
 
 SUMMARY_PROMPT = """
     Quickly summarize this conversation in a few sentences. 
-    
+    Be terse, precise, accurate, and academic.
     The summaries should focus on retaining information to be used in an academic paper with the following abstract:
     [Eye tracking technology has emerged as a valuable tool for studying motor control, balance, and coordination during
      complex movements. This review comprehensively surveys the literature on applications of eye tracking in motor control 
@@ -47,8 +47,6 @@ SUMMARY_PROMPT = """
       environments. Synthesis of the literature indicates a robust capacity for eye tracking techniques to advance comprehension 
       of the complex perceptual and neural processes underlying human balance, motor control, and goal-directed movement.]
       
-      Be terse, precise, accurate, and academic.
- 
  CONVERSATION TEXT: 
  
  {text}
@@ -68,38 +66,24 @@ GLOBAL_SUMMARY_PROMPT = """
     Write a lengthy, precise, academic review article based on the LIST OF SUMMARIES TEXT.
     Be truthful, accurate, and precise. Do not make anything up. 
     Use the following outline:[
-    I. Introduction
-    A. Eye tracking technology provides insights into motor control and coordination during jumping movements
-    B. Allows researchers to study relationship between gaze direction and balance
-    II. Benefits of Eye Tracking in Motor Control Studies
-    A. Tracks gaze direction which is crucial for motor planning and execution
-    B. Analyzing gaze patterns provides understanding of visual attention allocation
-    III. Importance of Literature Review
-    A. Builds on previous findings and identifies knowledge gaps
-    B. Example study on head movements supporting eye tracking in baseball batting
-    IV. Visual Neuroscience
-    A. Explores how brain processes visual information
-    B. Relevant to sports training, video game design, etc.
-    V. Oculomotor Control
-    A. Neural system controlling eye movements
-    B. Different types of eye movements studied
-    C. Animal models like Hubel & Wiesel's cat research
-    VI. Applications of Eye Tracking
-    A. Sports - where people look during actions and exertion
-    B. Cognitive processes - combined with EEG data
-    VII. Role of Cranial Nerves
-    A. Eye trackers track coordinated cranial nerve movements
-    B. Insights into relationship between eye movements and cognition
-    C. ADHD studies showing improved cognitive function after training
-    VIII. Technical Aspects
-    A. Video-based eye trackers like Pupil Labs
-    B. Measuring corneal reflections and pupil reflexes
-    C. Applications in UX, psychology, neuroscience, accessibility
-    IX. Conclusion
-    A. Comprehensive overview of eye tracking in motor control
-    B. Highlights relationship between gaze and balance
-    C. Emphasizes literature review and animal models
-    D. Valuable insights for understanding human perception and movement]
+    # Vision, Eye Tracking, and Oculomotor Control
+    ## The technology of eye tracking
+    ### Use as a scientific tool
+    ### use as a clinical tool
+    ### cameras, computer vision, computational geometry
+    ## Neuroscience
+    ### Visual neuroscience 
+    ### Oculomotor control
+    ### Perceptual motor integration 
+    ## Physiology of eyeballs
+    ### Fovea
+    ### eye movement muscles
+    ### photo receptors
+    ## Laser skeletons
+    ### Full-body motion capture
+    ### Gaze lasers
+    ### Perception/Action coupling
+]
     
 LIST OF SUMMARIES TEXT: 
 +++++ 
