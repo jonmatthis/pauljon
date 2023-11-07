@@ -10,29 +10,10 @@ from langchain.prompts import ChatPromptTemplate
 load_dotenv()
 
 SUMMARY_PROMPT = """
-    You are a bot assistant for an open source software project. 
-    We are working on giving the documentation for this project a complete overhaul.
-    This will be an ongoing, iterative process.
-    
-    We are assessing each document as it currently exists to be reworked so that it fits into the Diataxis Documentation framework.
-    The Diataxis Documentation framework can be summarized as follows:
-        * The framework provides a systematic approach to create, organize and maintain technical documentation.
-        * The goal is pragmatic improvement.
-        * The framework divides documentation into 4 types based on 2 axes:
-            1 - Theory vs Practice
-            2 - Acquisition vs Application
-        * The 4 types of Documentation:
-            1 - Tutorials - Learning-oriented guides that provide lessons to teach users basic skills. Help users get started.
-            2 - How-To Guides - Task-oriented guides that provide steps to accomplish specific goals. Help users solve problems.
-            3 - Reference - Information-oriented technical descriptions of the product. Help users find factual information.
-            4 - Explanation - Understanding-oriented discussion to provide context and illuminate concepts. Help users gain deeper knowledge.
-        * Each type serves a distinct user need at different points in their journey using the product.
-        * Keeping the types clearly separated improves quality by ensuring docs fit user needs.
-        * Start small, assess and improve one part at a time to steadily enhance overall documentation.
-        
-    Your job as a bot assistant is to:
-        * At the top of each document, add text identifying it so that it fits into the Diataxis framework
-        * Summarize each document so that it considers the Diataxis Documentation framework.
+    You are a bot assistant for a university neuroscience course. 
+    We are creating an academic paper based on a collection of conversations students had with AI chatbots. 
+    Write a summary of each student chat, considering the academic paper that will be written based on their chats. 
+    Be truthful, accurate, and precise. Do not make anything up. 
  
  DOCUMENT DRAFT TEXT: 
  
@@ -50,31 +31,19 @@ def create_component_summary_chain():
 
 
 GLOBAL_SUMMARY_PROMPT = """
-    You are a bot assistant for an open source software project. 
-    We are working on giving the documentation for this project a complete overhaul.
-    This will be an ongoing, iterative process.
-    
-    We are assessing each document as it currently exists to be reworked so that it fits into the Diataxis Documentation framework.
-    The Diataxis Documentation framework can be summarized as follows:
-        * The framework provides a systematic approach to create, organize and maintain technical documentation.
-        * The goal is pragmatic improvement.
-        * The framework divides documentation into 4 types based on 2 axes:
-            1 - Theory vs Practice
-            2 - Acquisition vs Application
-        * The 4 types of Documentation:
-            1 - Tutorials - Learning-oriented guides that provide lessons to teach users basic skills. Help users get started.
-            2 - How-To Guides - Task-oriented guides that provide steps to accomplish specific goals. Help users solve problems.
-            3 - Reference - Information-oriented technical descriptions of the product. Help users find factual information.
-            4 - Explanation - Understanding-oriented discussion to provide context and illuminate concepts. Help users gain deeper knowledge.
-        * Each type serves a distinct user need at different points in their journey using the product.
-        * Keeping the types clearly separated improves quality by ensuring docs fit user needs.
-        * Start small, assess and improve one part at a time to steadily enhance overall documentation.
-        
-    Approach this as a second pass. Previously, we summarized each document individually in the repository. 
-    For this pass, your job as a bot assistant is to:
-        * I need you to combine the summaries of each file into a global report of the current state of the documentation. This should include:
-            1. Identification of gaps that would complete an approach using the Diataxis Documentation framework.
-            2. A prioritized list of what exists and where the gaps should most be addressed. 
+    You are a bot assistant for a university neuroscience course. 
+    We are creating an academic paper based on a collection of summaries based on conversations students had with AI chatbots. 
+    Write a professional, exceedingly rigorous academic paper from the collection of student chats. 
+    Use lateral thinking to conceive of a unique, clever subject matter for the paper based on their chats. 
+    Write the academic paper. Be truthful. Do not make anything up. 
+    The paper should have the following basic structure:
+        Title of Paper
+        Abstract
+        Title of Subsection
+        Text of Subsection
+        Repeat Subsection as many times as necessary.
+        Conclusion
+        Citations
              
  CURRENT PROPOSAL TEXT: 
  
@@ -97,7 +66,7 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
     global_summary_chain = create_global_summary_chain()
     inputs = []
     all_texts = []
-    for chat in chats:
+    for chat in chats.values():
         try:
             all_texts.append(chat["as_text"])
             inputs.append({"text": chat["as_text"]})
@@ -129,15 +98,16 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
 
 
 if __name__ == "__main__":
-    # target_channel_id = 1168937728637947914 #2023-10-31_in_class-eye-tracking
-    target_channel_id = 1158766012116783164  # Jumping project channel
+    target_channel_id = 1168937728637947914 #2023-10-31_in_class-eye-tracking
+    # target_channel_id = 1158766012116783164  # Jumping project channel
     json_path = Path(
-        r"C:\Users\jonma\syncthing_folders\jon_main_syncthing\jonbot_data\classbot_database\classbot_database.chats_2023-11-06.json")
+        # r"/Users/paul/Code/pauljon/classbot_database.chats_2023-11-06.json")
+        "/Users/paul/Code/pauljon/eyetracking_channel_chats.json")
     all_chats = json.loads(json_path.read_text(encoding="utf-8"))
-    chats_to_use = []
-    for chat in all_chats:
-        if "channel_id" in chat.keys():
-            if int(chat["channel_id"]["$numberLong"]) == target_channel_id:
-                chats_to_use.append(chat)
+    #chats_to_use = []
+    #for chat in all_chats:
+     #   if "channel_id" in chat.keys():
+      #      if int(chat["channel_id"]["$numberLong"]) == target_channel_id:
+       #         chats_to_use.append(chat)
 
-    asyncio.run(document_from_discord_chats(chats=chats_to_use))
+    asyncio.run(document_from_discord_chats(chats=all_chats))

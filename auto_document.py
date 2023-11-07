@@ -117,7 +117,7 @@ async def auto_document(document_root_path: Union[Path, str]):
     output_text += document_tree_string
 
 
-    with open("document_summary.md", "w", encoding="utf-8") as file:
+    with open("document_summary-diataxis0.md", "w", encoding="utf-8") as file:
         file.write(output_text)
 
 
