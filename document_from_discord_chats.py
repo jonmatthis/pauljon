@@ -1,5 +1,6 @@
 import asyncio
 import json
+import time
 from pathlib import Path
 from typing import List, Dict, Any
 
@@ -9,13 +10,30 @@ from langchain.prompts import ChatPromptTemplate
 
 load_dotenv()
 
+TOPIC_EXTRACTOR_PROMPT = """
+    Extract tags for relevant topics that are discussed in this conversation.
+    Create a list of topics separated by commas and wrapped in [[double brackets]] like so: 
+    [[Topic Name]], [[Another topic name]], [[Yet another topic name]]
+
+TEXT: 
+
+ {text}
+
+"""
+
+
+def create_topic_extraction_chain():
+    prompt = ChatPromptTemplate.from_template(TOPIC_EXTRACTOR_PROMPT)
+    model = ChatOpenAI(temperature=0,
+                       model_name="gpt-3.5-turbo-16k")
+    chain = prompt | model
+    return chain
+
 SUMMARY_PROMPT = """
-    You are a bot assistant for a university neuroscience course. 
-    We are creating an academic paper based on a collection of conversations students had with AI chatbots. 
-    Write a summary of each student chat, considering the academic paper that will be written based on their chats. 
-    Be truthful, accurate, and precise. Do not make anything up. 
+    Quickly summarize this conversation in a few sentences. Be terse and precise.  
+    Be accurate and academic.
  
- DOCUMENT DRAFT TEXT: 
+ CONVERSATION TEXT: 
  
  {text}
 
@@ -31,21 +49,10 @@ def create_component_summary_chain():
 
 
 GLOBAL_SUMMARY_PROMPT = """
-    You are a bot assistant for a university neuroscience course. 
-    We are creating an academic paper based on a collection of summaries based on conversations students had with AI chatbots. 
-    Write a professional, exceedingly rigorous academic paper from the collection of student chats. 
-    Use lateral thinking to conceive of a unique, clever subject matter for the paper based on their chats. 
-    Write the academic paper. Be truthful. Do not make anything up. 
-    The paper should have the following basic structure:
-        Title of Paper
-        Abstract
-        Title of Subsection
-        Text of Subsection
-        Repeat Subsection as many times as necessary.
-        Conclusion
-        Citations
-             
- CURRENT PROPOSAL TEXT: 
+    Write a lengthy, precise, academic review article based on the LIST OF SUMMARIES TEXT.
+    Be truthful, accurate, and precise. Do not make anything up. 
+    
+LIST OF SUMMARIES TEXT: 
  
 {text}
 """
@@ -54,7 +61,8 @@ GLOBAL_SUMMARY_PROMPT = """
 def create_global_summary_chain():
     prompt = ChatPromptTemplate.from_template(GLOBAL_SUMMARY_PROMPT)
 
-    model = ChatAnthropic(temperature=0)
+    model = ChatOpenAI(temperature=0,
+                       model_name="gpt-3.5-turbo-16k")
     chain = prompt | model
     return chain
 
@@ -62,8 +70,6 @@ def create_global_summary_chain():
 async def document_from_discord_chats(chats: List[Dict[str, Any]]):
     output_text = ""
 
-    component_summary_chain = create_component_summary_chain()
-    global_summary_chain = create_global_summary_chain()
     inputs = []
     all_texts = []
     for chat in chats.values():
@@ -72,6 +78,21 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
             inputs.append({"text": chat["as_text"]})
         except KeyError:
             print(f"WARNING: Could not find `as_text` key in chat: {chat}")
+
+    component_topic_extraction_chain = create_topic_extraction_chain()
+    component_summary_chain = create_component_summary_chain()
+    global_summary_chain = create_global_summary_chain()
+
+    print(f"Starting TOPIC EXTRACTION CHAIN: with {len(inputs)} chats...")
+
+    all_topics = await component_topic_extraction_chain.abatch(inputs=inputs)
+    for topic in all_topics:
+        file_topics = (f"+++++++++++++++++++++++++++++++++++\n\n"
+                        f"INDIVIDUAL CHAT TOPICS\n\n"
+                        f"{topic.content}\n\n"
+                        f"-----------------------------------\n\n")
+        print(file_topics)
+        output_text += file_topics
 
     all_summaries = await component_summary_chain.abatch(inputs=inputs)
     for summary in all_summaries:
@@ -84,15 +105,26 @@ async def document_from_discord_chats(chats: List[Dict[str, Any]]):
 
     print(output_text)
 
-    global_summary = global_summary_chain.invoke({"text": "\n".join(all_texts)}).content
+    all_summaries_and_topics = []
+    for summary, topic in zip(all_summaries, all_topics):
+        all_summaries_and_topics.append(summary.content)
+        all_summaries_and_topics.append(topic.content)
+    all_summaries_and_topics = "\n".join(all_summaries_and_topics)
+    clipped_text = all_summaries_and_topics[:15000]
+    global_summary = global_summary_chain.invoke({"text": clipped_text}).content
 
     output_text += (f"=============================================================\n\n"
                     f"=============================================================\n\n"
-                    f"\n\n GLOBAL SUMMARY OF SUMMARIES \n \n"
+                    f"\n\n GLOBAL SUMMARY OF SUMMARIES \n\n"
                     f"=============================================================\n\n"
                     f"{global_summary}\n\n")
+    print(global_summary)
 
     document_file_name = f"document_summary.md"
+    file_number=0
+    while Path(document_file_name).is_file():
+        document_file_name=f"document_summary{file_number}.md"
+        file_number+=1
     with open(document_file_name, "w", encoding="utf-8") as file:
         file.write(output_text)
 
