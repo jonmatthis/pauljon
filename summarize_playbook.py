@@ -57,13 +57,17 @@ async def summarize_playbook(playbook_text_file_path: str):
     with open(playbook_text_file_path, "r") as file:
         playbook_text = file.read()
 
-    # Break up the text file into 10000 character sized chunks
-    chunks = [playbook_text[i: i + 10000] for i in range(0, len(playbook_text), 10000)]
+    chapters = playbook_text.split("CHAPTER")
+    # The split will create an empty string at the start, so remove it
+    if chapters[0] == '':
+        chapters.pop(0)
+
+    chapter_dict = {f"CHAPTER {i + 1}": chapter for i, chapter in enumerate(chapters)}
 
     # Process them using chain.abatch
     print("Summarizer is summarizing.")
 
-    all_summaries = await component_summary_chain.abatch(inputs=[{"text": chunk} for chunk in chunks])
+    all_summaries = await component_summary_chain.abatch(inputs=[{"text": chapter_text} for chapter_text in chapter_dict.values()])
     for summary in all_summaries:
         print(f"chunk:\n\n{summary.content}\n\n===\n\n")
         component_summaries_text += summary.content + "\n\n"
@@ -82,6 +86,6 @@ async def summarize_playbook(playbook_text_file_path: str):
         file.write(global_summary.content)
 
 if __name__ == "__main__":
-    playbook_text_file_in = "/Users/paul/Documents/Research/Palestine/zionist-playbook.txt"
+    playbook_text_file_in = "/Users/paul/Documents/Research/Palestine/zionist-playbook-cloudconvert.txt"
 
     asyncio.run(summarize_playbook(playbook_text_file_path=playbook_text_file_in))
